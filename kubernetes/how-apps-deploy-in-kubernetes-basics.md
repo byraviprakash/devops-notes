@@ -15,22 +15,22 @@ The flow has two halves:
 
 ```mermaid
 flowchart TD
-    Dev([Developer]) -->|1. writes & pushes| Code[Code in Git]
+    Dev([👨‍💻 Developer]) -->|1. writes & pushes| Code[📄 Code in Git]
 
-    subgraph CI["CI pipeline (e.g. GitLab CI)"]
+    subgraph CI["🔧 CI pipeline (e.g. GitLab CI)"]
         Code -->|2| Build[Restore, compile, unit test]
-        Build -->|3| Artifact[Artifact]
-        Artifact -->|4| Dockerfile[Dockerfile]
+        Build -->|3| Artifact[📦 Artifact]
+        Artifact -->|4| Dockerfile[🐳 Dockerfile]
         Dockerfile -->|5| DBuild[docker build]
         DBuild -->|6| Push[docker push]
     end
 
-    Push -->|7| Registry[(Image registry<br/>Docker Hub / Artifact Registry)]
+    Push -->|7| Registry[(🗄️ Image registry<br/>Docker Hub / Artifact Registry)]
 
-    Dev -->|8. writes| Manifest[K8s Deployment manifest - YAML]
+    Dev -->|8. writes| Manifest[📝 K8s Deployment manifest - YAML]
     Manifest -->|9. kubectl apply| API
 
-    subgraph CP["Control plane"]
+    subgraph CP["🧠 Control plane"]
         API[kube-apiserver]
         API <-->|10| ETCD[(etcd)]
         CM[controller-manager] <-->|10| API
@@ -38,11 +38,11 @@ flowchart TD
         CCM[cloud-controller-manager] <--> API
     end
 
-    subgraph Node["Worker node"]
+    subgraph WN["🖥️ Worker node"]
         Kubelet[kubelet]
         Runtime[Container runtime]
         KProxy[kube-proxy]
-        Pod[Pod / container]
+        Pod[🚀 Pod / container]
     end
 
     Kubelet -->|11. watches for pods| API
@@ -50,10 +50,33 @@ flowchart TD
     Runtime -->|13. pulls image| Registry
     Runtime -->|14. starts| Pod
 
-    Users([Users]) -->|15| Service[Service]
+    Users([👥 Users]) -->|15| Service[🌐 Service]
     Service --> Pod
     KProxy -. programs routing rules .-> Service
+
+    %% ---------- Colours ----------
+    classDef dev      fill:#7c3aed,stroke:#4c1d95,color:#ffffff,stroke-width:2px
+    classDef ci       fill:#2563eb,stroke:#1e3a8a,color:#ffffff,stroke-width:2px
+    classDef registry fill:#0d9488,stroke:#134e4a,color:#ffffff,stroke-width:2px
+    classDef cp       fill:#ea580c,stroke:#7c2d12,color:#ffffff,stroke-width:2px
+    classDef worker   fill:#16a34a,stroke:#14532d,color:#ffffff,stroke-width:2px
+    classDef pod      fill:#facc15,stroke:#a16207,color:#000000,stroke-width:2px
+    classDef users    fill:#db2777,stroke:#831843,color:#ffffff,stroke-width:2px
+
+    class Dev,Code,Manifest dev
+    class Build,Artifact,Dockerfile,DBuild,Push ci
+    class Registry registry
+    class API,ETCD,CM,SCHED,CCM cp
+    class Kubelet,Runtime,KProxy worker
+    class Pod pod
+    class Users,Service users
+
+    style CI   fill:#dbeafe,stroke:#2563eb,stroke-width:3px,color:#1e3a8a
+    style CP   fill:#ffedd5,stroke:#ea580c,stroke-width:3px,color:#7c2d12
+    style WN   fill:#dcfce7,stroke:#16a34a,stroke-width:3px,color:#14532d
 ```
+
+**Colour legend:** Purple = developer & files · Blue = CI pipeline · Teal = image registry · Orange = control plane · Green = worker node · Yellow = running pod · Pink = users & Service
 
 ---
 
